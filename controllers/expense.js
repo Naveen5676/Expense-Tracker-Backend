@@ -1,29 +1,46 @@
 const expensemodel = require("../models/expense");
 const usermodel = require("../models/user");
+const sequelize = require("../utils/database");
 
 exports.Addexpense = async (req, res, next) => {
+  let t;
   try {
+    t = await sequelize.transaction();
     const userid = req.user.id;
     const amount = req.body.amount;
     const description = req.body.description;
     const category = req.body.category;
 
-    const expense = await expensemodel.create({
-      expenseamt: amount,
-      description: description,
-      category: category,
-      userdatumId: userid,
-    });
+    const expense = await expensemodel.create(
+      {
+        expenseamt: amount,
+        description: description,
+        category: category,
+        userdatumId: userid,
+      },
+      { transaction: t }
+    );
 
-    const user = await usermodel.findOne({ where: { id: userid } });
+    const user = await usermodel.findOne(
+      { where: { id: userid } },
+      { transaction: t }
+    );
+    if (!user) {
+      throw new Error("User not found"); // Handle case where user is not found
+    }
     if (user) {
       const updatedtotalexpense = Number(user.totalexpense) + Number(amount);
-      await user.update({ totalexpense: updatedtotalexpense });
+      await user.update(
+        { totalexpense: updatedtotalexpense },
+        { transaction: t }
+      );
     }
-
+    await t.commit();
     res.status(200).json({ message: "Expense added successfully" });
   } catch (err) {
+    await t.rollback();
     console.log(err);
+    res.status(500).json(err);
   }
 };
 
