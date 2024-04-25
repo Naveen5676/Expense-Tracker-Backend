@@ -1,22 +1,30 @@
 const expensemodel = require("../models/expense");
+const usermodel = require("../models/user");
 
-exports.Addexpense = (req, res, next) => {
-  const userid = req.user.id;
-  const amount = req.body.amount;
-  const description = req.body.description;
-  const category = req.body.category;
+exports.Addexpense = async (req, res, next) => {
+  try {
+    const userid = req.user.id;
+    const amount = req.body.amount;
+    const description = req.body.description;
+    const category = req.body.category;
 
-  expensemodel
-    .create({
+    const expense = await expensemodel.create({
       expenseamt: amount,
       description: description,
       category: category,
-      userdatumId:userid
-    })
-    .then((result) => {
-      res.status(200).json({ result });
-    })
-    .catch((err) => console.log(err));
+      userdatumId: userid,
+    });
+
+    const user = await usermodel.findOne({ where: { id: userid } });
+    if (user) {
+      const updatedtotalexpense = Number(user.totalexpense) + Number(amount);
+      await user.update({ totalexpense: updatedtotalexpense });
+    }
+
+    res.status(200).json({ message: "Expense added successfully" });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 exports.ShowExpense = (req, res, next) => {
@@ -48,24 +56,35 @@ exports.ShowExpense = (req, res, next) => {
     });
 };
 
-exports.deleteExpense = (req, res, next) => {
-  const expenseid = req.params.id;
-  const  userId = req.user.id;
-
-  expensemodel
-   .findOne({where : { id:expenseid , userdatumId: userId }})
-    .then((data) => {
-      if (!data) {
-        return res.status(404).send("Expense not found");
-      } else {
-        return data.destroy();
-      }
-    })
-    .then(() => {
-      res.status(204).send("Deleted");
-    })
-    .catch((err) => {
-      console.log(err);
+exports.deleteExpense = async (req, res, next) => {
+  try {
+    const expenseid = req.params.id;
+    const userId = req.user.id;
+    //find the expense to delete form expense table
+    const data = await expensemodel.findOne({
+      where: { id: expenseid, userdatumId: userId },
     });
-};
 
+    if (!data) {
+      return res.status(404).send("Expense not found");
+    }
+
+    //fidn the user to update total expense
+    const user = await usermodel.findOne({ where: { id: userId } });
+    if (user) {
+      const updatedtotalexpense =
+        Number(user.totalexpense) - Number(data.expenseamt);
+      if (updatedtotalexpense <= 0) {
+        user.update({ totalexpense: 0 });
+      } else {
+        user.update({ totalexpense: updatedtotalexpense });
+      }
+    }
+    //delete the expense
+    await data.destroy();
+    return res.status(204).send("Deleted");
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "error while deleting expense" });
+  }
+};

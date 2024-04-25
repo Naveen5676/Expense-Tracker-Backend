@@ -21,7 +21,8 @@ const usermodel =  sequelize.define("userdata" , {
         type:Sequelize.STRING,
         allowNull:false
     },
-    ispremiumuser:Sequelize.BOOLEAN
+    ispremiumuser:Sequelize.BOOLEAN,
+    totalexpense:Sequelize.INTEGER
 })
 
 module.exports = usermodel

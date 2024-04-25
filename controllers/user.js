@@ -20,7 +20,8 @@ exports.signup = (req, res, next) => {
         name: name,
         email: email,
         password: hash,
-        ispremiumuser:0
+        ispremiumuser:0,
+        totalexpense:0,
       });
       res.status(200).json(user);
     } catch (err) {
