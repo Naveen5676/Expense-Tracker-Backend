@@ -5,9 +5,11 @@ const sequelize = require("./utils/database");
 
 const userrouter = require("./routes/user");
 const expenserouter = require('./routes/expense');
+const purchaserouter = require('./routes/purchase');
 
 const Expense = require('./models/expense');
 const User = require( './models/user' );
+const Order = require('./models/purchase')
 
 const app = exress();
 
@@ -15,9 +17,14 @@ app.use(cors());
 app.use(bodyparser.json({ extended: false }));
 app.use(userrouter);
 app.use(expenserouter);
+app.use(purchaserouter);
 
 User.hasMany(Expense)
 Expense.belongsTo(User)
+//------------------------
+User.hasMany(Order)
+Order.belongsTo(User)
+
 
 sequelize
   .sync({ force: false })

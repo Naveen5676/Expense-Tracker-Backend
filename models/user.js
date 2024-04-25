@@ -20,7 +20,8 @@ const usermodel =  sequelize.define("userdata" , {
     password:{
         type:Sequelize.STRING,
         allowNull:false
-    }
+    },
+    ispremiumuser:Sequelize.BOOLEAN
 })
 
 module.exports = usermodel

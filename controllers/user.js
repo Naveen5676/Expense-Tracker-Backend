@@ -20,6 +20,7 @@ exports.signup = (req, res, next) => {
         name: name,
         email: email,
         password: hash,
+        ispremiumuser:0
       });
       res.status(200).json(user);
     } catch (err) {
@@ -53,3 +54,12 @@ exports.login = (req, res, next) => {
       res.status(500).json({ error: err });
     });
 };
+
+exports.findpremiumuser = (req,res,next)=>{
+  usermodel.findOne({where: {id:req.user.id}}).then((response)=>{
+    //console.log('find premium', response.dataValues.ispremiumuser)
+    res.status(200).json(response.dataValues.ispremiumuser)
+  }).catch((err)=>{
+  res.status(201).json({err,message :'error in findpremiumuser controller'})
+  })
+}
