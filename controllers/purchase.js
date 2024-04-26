@@ -11,7 +11,7 @@ exports.purchasepremium = async (req, res, next) => {
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
-    //console.log('key id ============>', process.env.RAZORPAY_KEY_ID)
+    console.log('key id ============>', process.env.RAZORPAY_KEY_ID)
     const amount = 2500;
 
     rzp.orders.create({ amount: amount, currency: "INR" }, (err, order) => {

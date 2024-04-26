@@ -10,4 +10,6 @@ router.get('/showexpense' , authorizationMiddleware.authorization ,expenseContro
 
 router.delete('/delete/:id' ,  authorizationMiddleware.authorization , expenseController.deleteExpense);
 
+router.get('/downloadexpense' , authorizationMiddleware.authorization , expenseController.downnloadexpense);
+
 module.exports = router

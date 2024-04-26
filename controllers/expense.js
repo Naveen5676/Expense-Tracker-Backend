@@ -1,6 +1,8 @@
 const expensemodel = require("../models/expense");
 const usermodel = require("../models/user");
 const sequelize = require("../utils/database");
+const S3services = require("../services/S3services");
+const filesdownloadedmodal = require('../models/filesdownloaded');
 
 exports.Addexpense = async (req, res, next) => {
   let t;
@@ -103,5 +105,26 @@ exports.deleteExpense = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "error while deleting expense" });
+  }
+};
+
+exports.downnloadexpense = async (req, res, next) => {
+  try {
+    const userid = req.user.id;
+    const expenses = await expensemodel.findAll({
+      where: { userdatumId: userid },
+    });
+    //console.log(expenses)
+
+    const stringifyiedExpenses = JSON.stringify(expenses);
+    //I have added user id because if  we keep same filename the old file name data would get overdied with new data and there would be no version controll
+    const filename = `expenses${userid}/${new Date()}.txt`;
+    const fileURL = await S3services.uploadtoS3(stringifyiedExpenses, filename);
+    //console.log('fileurl ========>', fileURL)
+    filesdownloadedmodal.create({downloadurl: fileURL , userdatumId : userid})
+    res.status(200).json({ fileURL, success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ fileurl: "", success: false, error: error });
   }
 };
