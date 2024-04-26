@@ -66,7 +66,6 @@ exports.findpremiumuser = (req,res,next)=>{
   })
 }
 
-
 var SibApiV3Sdk = require('sib-api-v3-sdk');
 var defaultClient = SibApiV3Sdk.ApiClient.instance;
 
@@ -103,8 +102,7 @@ var apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 //   console.error(error);
 // });
 // };
-
-exports.forgotpwd=(req,res,next)=>{
+exports.forgotpwduser=(req,res,next)=>{
   const sender={
     email:'naveenwali403@gmail.com'
   }
@@ -126,4 +124,4 @@ exports.forgotpwd=(req,res,next)=>{
       console.error(error);
   }
 
-}
+};
