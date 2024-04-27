@@ -2,7 +2,7 @@ const expensemodel = require("../models/expense");
 const usermodel = require("../models/user");
 const sequelize = require("../utils/database");
 const S3services = require("../services/S3services");
-const filesdownloadedmodal = require('../models/filesdownloaded');
+const filesdownloadedmodal = require("../models/filesdownloaded");
 
 exports.Addexpense = async (req, res, next) => {
   let t;
@@ -121,10 +121,39 @@ exports.downnloadexpense = async (req, res, next) => {
     const filename = `expenses${userid}/${new Date()}.txt`;
     const fileURL = await S3services.uploadtoS3(stringifyiedExpenses, filename);
     //console.log('fileurl ========>', fileURL)
-    filesdownloadedmodal.create({downloadurl: fileURL , userdatumId : userid})
+    filesdownloadedmodal.create({ downloadurl: fileURL, userdatumId: userid });
     res.status(200).json({ fileURL, success: true });
   } catch (error) {
     console.log(error);
     res.status(500).json({ fileurl: "", success: false, error: error });
+  }
+};
+
+exports.getProduct = async (req, res, next) => {
+  const  rows = req.query.rowsperpage
+  console.log('rows form frontend =========> ',rows)
+  const ITEMS_PER_PAGE = Number(rows);
+  try {
+    const page = req.query.page || 1;
+    const userId = req.user.id;
+
+    const data = await expensemodel.findAndCountAll({
+      where: { userdatumId: userId },
+      offset: (page - 1) * ITEMS_PER_PAGE,
+      limit: ITEMS_PER_PAGE,
+    });
+
+    const product = data.rows;
+
+    res.json({
+      products: product,
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < data.count,
+      nextPage: Number(page) + 1,
+      hasPrevousPage: Number(page) > 1,
+      previousPage: Number(page) - 1,
+    });
+  } catch (error) {
+    console.log(error);
   }
 };

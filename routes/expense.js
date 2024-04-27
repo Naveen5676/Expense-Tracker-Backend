@@ -8,8 +8,12 @@ const router = express.Router()
 router.post('/expense' , authorizationMiddleware.authorization , expenseController.Addexpense);
 router.get('/showexpense' , authorizationMiddleware.authorization ,expenseController.ShowExpense);
 
+router.get('/getexpenses' , authorizationMiddleware.authorization , expenseController.getProduct);
+
 router.delete('/delete/:id' ,  authorizationMiddleware.authorization , expenseController.deleteExpense);
 
 router.get('/downloadexpense' , authorizationMiddleware.authorization , expenseController.downnloadexpense);
+
+
 
 module.exports = router
