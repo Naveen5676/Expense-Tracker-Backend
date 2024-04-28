@@ -1,4 +1,7 @@
 const cors = require("cors");
+const dotenv = require('dotenv');
+dotenv.config();
+
 const exress = require("express");
 const bodyparser = require("body-parser");
 const sequelize = require("./utils/database");
@@ -6,6 +9,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
+
 
 const userrouter = require("./routes/user");
 const expenserouter = require('./routes/expense');
@@ -26,8 +30,12 @@ const app = exress();
 //to store they console.log in a file and flag a refers to append 
 const accessLogScreen = fs.createWriteStream(path.join(__dirname , 'access.log'), {flags: 'a'})
 
+
+
 app.use(cors());
+//helmet  is used for security purpose
 app.use(helmet());
+//morgan is used to write all logs to a file called access.log
 app.use(morgan('combined' , {stream:accessLogScreen}));
 app.use(bodyparser.json({ extended: false }));
 app.use(userrouter);
