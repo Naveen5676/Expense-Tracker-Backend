@@ -2,6 +2,10 @@ const cors = require("cors");
 const exress = require("express");
 const bodyparser = require("body-parser");
 const sequelize = require("./utils/database");
+const helmet = require('helmet');
+const morgan = require('morgan');
+const fs = require('fs');
+const path = require('path');
 
 const userrouter = require("./routes/user");
 const expenserouter = require('./routes/expense');
@@ -19,7 +23,12 @@ const Filesdownloadurl = require('./models/filesdownloaded');
 
 const app = exress();
 
+//to store they console.log in a file and flag a refers to append 
+const accessLogScreen = fs.createWriteStream(path.join(__dirname , 'access.log'), {flags: 'a'})
+
 app.use(cors());
+app.use(helmet());
+app.use(morgan('combined' , {stream:accessLogScreen}));
 app.use(bodyparser.json({ extended: false }));
 app.use(userrouter);
 app.use(expenserouter);
